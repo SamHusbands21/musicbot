@@ -1,0 +1,4 @@
+disnake>=2.10.0
+wavelink>=3.4.1
+aiohttp>=3.10.0
+aiosqlite>=0.20.0
