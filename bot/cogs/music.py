@@ -7,7 +7,7 @@ import wavelink
 from disnake.ext import commands
 
 from bot.services.player_service import PlayerService
-from bot.services.source_resolver import SourceResolver
+from bot.services.source_resolver import SourceResolver, is_url
 from bot.services.spotify_service import SpotifyService
 
 
@@ -65,6 +65,16 @@ class MusicCog(commands.Cog):
             return None
         return inter.guild, member, member.voice.channel
 
+    @staticmethod
+    def _track_choice(track: wavelink.Playable) -> disnake.OptionChoice:
+        label = f"{track.title} — {track.author}".replace("\n", " ")
+        if len(label) > 100:
+            label = label[:97] + "..."
+        value = track.uri or track.title
+        if len(value) > 100:
+            value = value[:100]
+        return disnake.OptionChoice(name=label, value=value)
+
     @commands.slash_command(description="Play a song from YouTube/Spotify/SoundCloud URL or search query.")
     async def play(self, inter: disnake.ApplicationCommandInteraction, query: str) -> None:
         preflight = await self._preflight(inter)
@@ -99,6 +109,19 @@ class MusicCog(commands.Cog):
             f"Added `{added}` track(s) to queue. Current queue size: `{queue_size}`.\n"
             f"Requested by {member.mention}."
         )
+
+    @play.autocomplete("query")
+    async def play_query_autocomplete(
+        self, inter: disnake.ApplicationCommandInteraction, query: str
+    ) -> list[disnake.OptionChoice]:
+        if not query or len(query.strip()) < 2 or is_url(query):
+            return []
+        try:
+            tracks = await self.resolver.search_suggestions(query, limit=10)
+            return [self._track_choice(track) for track in tracks if track.uri or track.title]
+        except Exception:
+            self.log.exception("Autocomplete search failed.")
+            return []
 
     @commands.slash_command(description="Pause current playback.")
     async def pause(self, inter: disnake.ApplicationCommandInteraction) -> None:

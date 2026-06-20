@@ -5,6 +5,8 @@ Discord music bot for private servers, built with Python + Disnake + Lavalink an
 ## Features
 
 - Slash commands: `/play`, `/pause`, `/resume`, `/skip`, `/queue`, `/nowplaying`, `/stop`, `/leave`
+- `/play` autocomplete for song suggestions (URLs still work when pasted directly)
+- `/spoutnonsense` — random Scrabble adjective+noun phrase spoken via TTS in voice
 - Source support:
   - YouTube (search + URL playback through Lavalink plugin)
   - SoundCloud
@@ -20,6 +22,7 @@ Discord music bot for private servers, built with Python + Disnake + Lavalink an
 2. Fill required credentials in `.env`:
    - `DISCORD_TOKEN`
    - `LAVALINK_PASSWORD`
+   - `DISCORD_GUILD_IDS` (your server ID, for instant slash command registration)
    - Optional Spotify credentials for Spotify URL support
 3. Start services:
    - `docker compose up -d --build`
@@ -40,8 +43,11 @@ Discord music bot for private servers, built with Python + Disnake + Lavalink an
 
 - `bot/main.py` - bot startup entrypoint
 - `bot/cogs/music.py` - slash commands and event handlers
+- `bot/cogs/fun.py` - `/spoutnonsense` and other fun commands
 - `bot/services/player_service.py` - queue/player lifecycle
 - `bot/services/source_resolver.py` - source resolution logic
+- `bot/services/nonsense_service.py` - Scrabble nonsense phrase generation
+- `bot/services/tts_service.py` - edge-tts synthesis + HTTP serving for Lavalink
 - `bot/services/spotify_service.py` - Spotify metadata API integration
 - `ops/lavalink/application.yml` - Lavalink + plugin configuration
 - `docs/deploy.md` - VPS deployment guide
@@ -50,3 +56,10 @@ Discord music bot for private servers, built with Python + Disnake + Lavalink an
 ## Notes on Spotify playback
 
 Spotify audio is not streamed directly. Spotify links are treated as metadata and mapped to playable sources (YouTube/SoundCloud).
+
+## Regenerating nonsense word lists
+
+```bash
+pip install nltk
+python scripts/build_nonsense_wordlists.py
+```

@@ -15,6 +15,9 @@ class GuildQueue:
     def add(self, track: wavelink.Playable) -> None:
         self.tracks.append(track)
 
+    def add_front(self, track: wavelink.Playable) -> None:
+        self.tracks.appendleft(track)
+
     def pop_next(self) -> wavelink.Playable | None:
         if not self.tracks:
             return None

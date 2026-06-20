@@ -13,7 +13,11 @@ services:
       - ./ops/lavalink/application.yml:/opt/Lavalink/application.yml:ro
       - lavalink_plugins:/opt/Lavalink/plugins
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:${LAVALINK_SERVER_PORT:-2333}/version || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- --header=\"Authorization: $$LAVALINK_SERVER_PASSWORD\" http://localhost:2333/version || exit 1",
+        ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -33,6 +37,8 @@ services:
         condition: service_healthy
     volumes:
       - bot_data:/data
+    expose:
+      - "8080"
 
 volumes:
   bot_data:

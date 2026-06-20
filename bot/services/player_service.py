@@ -83,6 +83,18 @@ class PlayerService:
             added += 1
         return added, len(queue)
 
+    async def play_interrupt(self, guild_id: int, player: wavelink.Player, track: wavelink.Playable) -> None:
+        self._cancel_idle_task(guild_id)
+        queue = self.get_queue(guild_id)
+        current = player.current
+        if player.playing and current:
+            queue.add_front(current)
+        queue.add_front(track)
+        if player.playing:
+            await self.skip(guild_id, player)
+        else:
+            await self.play_next(guild_id, player)
+
     async def maybe_start_playback(self, guild_id: int, player: wavelink.Player) -> bool:
         self._cancel_idle_task(guild_id)
         if player.playing:

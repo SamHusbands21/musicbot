@@ -1,0 +1,1 @@
+# Add offensive terms here, one per line, to exclude from nonsense generation.
